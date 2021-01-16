@@ -18,13 +18,27 @@ const app = express();
 
 // system inits and hooks
 app.use(bodyParser.json());
+firebase.initializeApp(firebaseConfig);
+let db = firebase.firestore();
+const patientCollectionRef = db.collection("evoluzy");
 
-// firebase.initializeApp(firebaseConfig);
+// routes
+const patientRootPath = "/patient";
 
-// let db = firebase.firestore();
-
-app.get("/", (req, res) => {
+app.get(patientRootPath, (req, res) => {
   res.send("Test");
+});
+
+app.post(patientRootPath, (req, res) => {
+  res.send("POST request to the homepage");
+});
+
+app.put(patientRootPath, (req, res) => {
+  res.send("put request to the homepage");
+});
+
+app.delete(patientRootPath, (req, res) => {
+  res.send("delete request to the homepage");
 });
 
 app.listen(port, () => {
