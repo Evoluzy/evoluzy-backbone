@@ -1,0 +1,19 @@
+{
+  "name": "evoluzy-backbone",
+  "version": "1.0.0",
+  "description": "Initalize repo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Evoluzy/evoluzy-backbone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Evoluzy/evoluzy-backbone/issues"
+  },
+  "homepage": "https://github.com/Evoluzy/evoluzy-backbone#readme"
+}
