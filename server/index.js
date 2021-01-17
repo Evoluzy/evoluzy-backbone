@@ -40,9 +40,33 @@ app.get(patientRootPath, async (req, res) => {
   }
 });
 
-app.post(patientRootPath, (req, res) => {
+app.post(patientRootPath, async (req, res) => {
   // userExist in db ? return status.CONFLICT : create user in db
-  res.send("POST request to the homepage");
+  let rsp = await isPatientExist(req);
+  if (rsp) {
+    return res.status(status.CONFLICT).json({});
+  } else if (rsp == false) {
+    // create user in db
+    let patientId = req.body.patientId;
+    let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
+    docRef
+      .set({
+        test: "hello",
+        name: "osama",
+      })
+      .then(function () {
+        console.log("Document successfully written!");
+        return res.status(status.OK).json({});
+      })
+      .catch(function (error) {
+        console.error("Error writing document: ", error);
+        return res.status(status.SERVER_ERROR).json({});
+      });
+  } else {
+    return res
+      .status(status.SERVER_ERROR)
+      .append("Error in calling google apis");
+  }
 });
 
 app.put(patientRootPath, (req, res) => {
@@ -71,6 +95,8 @@ async function isPatientExist(req) {
     return err;
   }
 }
+
+async function createUser(req) {}
 
 app.listen(port, () => {
   console.log(`app is listening on port: ${port}`);
