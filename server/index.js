@@ -28,16 +28,12 @@ const patientCollectionRef = db.collection("evoluzy");
 const patientRootPath = "/patient";
 
 app.get(patientRootPath, async (req, res) => {
-  let patientId = req.body.patientId;
-  let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
-  try {
-    let patient = await docRef.get();
-    if (patient.exists) {
-      res.status(status.OK).json(patient.data());
-    } else {
-      return res.status(status.NOT_FOUND).json({});
-    }
-  } catch (err) {
+  let rsp = await isPatientExist(req);
+  if (rsp) {
+    return res.status(status.OK).json(rsp);
+  } else if (rsp == false) {
+    return res.status(status.NOT_FOUND).json({});
+  } else {
     return res
       .status(status.SERVER_ERROR)
       .append("Error in calling google apis");
@@ -58,6 +54,23 @@ app.delete(patientRootPath, (req, res) => {
   // userExist in db ? delete user : return 200 in both cases
   res.send("delete request to the homepage");
 });
+
+//helper functions
+
+async function isPatientExist(req) {
+  let patientId = req.body.patientId;
+  let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
+  try {
+    let patient = await docRef.get();
+    if (patient.exists) {
+      return patient.data();
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return err;
+  }
+}
 
 app.listen(port, () => {
   console.log(`app is listening on port: ${port}`);
