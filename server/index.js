@@ -1,5 +1,6 @@
 const express = require("express");
 const firebase = require("firebase");
+const status = require("http-status");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -26,18 +27,22 @@ const patientCollectionRef = db.collection("evoluzy");
 const patientRootPath = "/patient";
 
 app.get(patientRootPath, (req, res) => {
-  res.send("Test");
+  // userExist in db ? return user : return status.NOT_FOUND
+  res.send(`Test`);
 });
 
 app.post(patientRootPath, (req, res) => {
+  // userExist in db ? return status.CONFLICT : create user in db
   res.send("POST request to the homepage");
 });
 
 app.put(patientRootPath, (req, res) => {
+  // userExist in db ? update patient doc  with patientID : create user in db
   res.send("put request to the homepage");
 });
 
 app.delete(patientRootPath, (req, res) => {
+  // userExist in db ? delete user : return 200 in both cases
   res.send("delete request to the homepage");
 });
 
