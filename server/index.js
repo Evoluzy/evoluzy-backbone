@@ -15,6 +15,7 @@ const firebaseConfig = {
   appId: process.env.appId,
 };
 const port = 3000;
+const PATIENT_COLLECTION_NAME = "patients-data";
 const app = express();
 
 // system inits and hooks
@@ -26,9 +27,21 @@ const patientCollectionRef = db.collection("evoluzy");
 // routes
 const patientRootPath = "/patient";
 
-app.get(patientRootPath, (req, res) => {
-  // userExist in db ? return user : return status.NOT_FOUND
-  res.send(`Test`);
+app.get(patientRootPath, async (req, res) => {
+  let patientId = req.body.patientId;
+  let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
+  try {
+    let patient = await docRef.get();
+    if (patient.exists) {
+      res.status(status.OK).json(patient.data());
+    } else {
+      return res.status(status.NOT_FOUND).json({});
+    }
+  } catch (err) {
+    return res
+      .status(status.SERVER_ERROR)
+      .append("Error in calling google apis");
+  }
 });
 
 app.post(patientRootPath, (req, res) => {
