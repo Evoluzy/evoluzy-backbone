@@ -23,6 +23,12 @@ app.use(bodyParser.json());
 firebase.initializeApp(firebaseConfig);
 let db = firebase.firestore();
 
+const USER_NOT_FOUND = "User Not Found";
+const USER_CREATED = "User Created";
+const USERT_UPDATED = "User Updated";
+const USER_DELETED = "User Deleted";
+const GOOGLE_API_ERROR = "Server Error when calling google APIs";
+
 // routes
 const patientRootPath = "/patient";
 
@@ -31,11 +37,9 @@ app.get(patientRootPath, async (req, res) => {
   if (rsp) {
     return res.status(status.OK).json(rsp);
   } else if (rsp == false) {
-    return res.status(status.NOT_FOUND).json({});
+    return res.status(status.NOT_FOUND).json({ msg: USER_NOT_FOUND });
   } else {
-    return res
-      .status(status.SERVER_ERROR)
-      .append("Error in calling google apis");
+    return res.status(status.SERVER_ERROR).append(GOOGLE_API_ERROR);
   }
 });
 
@@ -47,49 +51,35 @@ app.post(patientRootPath, async (req, res) => {
     let patientId = req.body.patientId;
     let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
     docRef
-      .set({
-        test: "hello",
-        name: "osama",
-      })
+      .set(req.body)
       .then(function () {
-        console.log("Document successfully written!");
-        return res.status(status.OK).json({});
+        return res.status(status.OK).json({ msg: USER_CREATED });
       })
       .catch(function (error) {
-        console.error("Error writing document: ", error);
-        return res.status(status.SERVER_ERROR).json({});
+        return res.status(status.SERVER_ERROR).json({ msg: error.message });
       });
   } else {
-    return res
-      .status(status.SERVER_ERROR)
-      .append("Error in calling google apis");
+    return res.status(status.SERVER_ERROR);
   }
 });
 
 app.put(patientRootPath, async (req, res) => {
   let rsp = await isPatientExist(req);
   if (rsp) {
-    return res.status(status.OK).json(rsp);
-  } else if (rsp == false) {
     let patientId = req.body.patientId;
     let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
     docRef
-      .set({
-        test: "hello-from-put",
-        name: "yesh",
-      })
+      .set(req.body)
       .then(function () {
-        console.log("User successfully created!");
-        return res.status(status.OK).json({});
+        return res.status(status.OK).json({ msg: USERT_UPDATED });
       })
       .catch(function (error) {
-        console.error("Error creating User", error);
-        return res.status(status.SERVER_ERROR).json({});
+        return res.status(status.SERVER_ERROR).json({ msg: error.message });
       });
+  } else if (rsp == false) {
+    return res.status(status.NOT_FOUND).json({ msg: USER_NOT_FOUND });
   } else {
-    return res
-      .status(status.SERVER_ERROR)
-      .append("Error in calling google apis");
+    return res.status(status.SERVER_ERROR).append(GOOGLE_API_ERROR);
   }
 });
 
@@ -100,12 +90,11 @@ app.delete(patientRootPath, async (req, res) => {
       .collection(PATIENT_COLLECTION_NAME)
       .doc(req.body.patientId)
       .delete();
-    console.log(result);
-    return res.status(status.OK).json({});
+    return res.status(status.OK).json({ msg: USER_DELETED });
   } else if (rsp == false) {
-    return res.status(status.OK).json({});
+    return res.status(status.OK).json({ msg: USER_NOT_FOUND });
   } else {
-    return res.status(status.SERVER_ERROR).json({});
+    return res.status(status.SERVER_ERROR).append(GOOGLE_API_ERROR);
   }
 });
 
@@ -130,8 +119,6 @@ async function isPatientExist(req) {
     return err;
   }
 }
-
-async function createUser(req) {}
 
 app.listen(port, () => {
   console.log(`app is listening on port: ${port}`);
