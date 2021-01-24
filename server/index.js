@@ -145,18 +145,11 @@ function getDayDDMM(date) {
   months = months < 10 ? "0" + months : months;
   return days + "/" + months;
 }
-function getHHMMdifference(start, end) {
+function getFloatDiff(start, end) {
   let duration = end - start;
-  let milliseconds = parseInt((duration % 1000) / 100),
-    seconds = Math.floor((duration / 1000) % 60),
-    minutes = Math.floor((duration / (1000 * 60)) % 60),
-    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-  hours = hours < 10 ? "0" + hours : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  seconds = seconds < 10 ? "0" + seconds : seconds;
-
-  return hours + ":" + minutes;
+  let minutes = Math.floor((duration / (1000 * 60)) % 60);
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  return hours + minutes / 60;
 }
 function formatSleepEvents(session) {
   let sleep = [];
@@ -168,7 +161,7 @@ function formatSleepEvents(session) {
       obj.date = getDayDDMM(startTime);
       obj.start = getTimeHHMMSS(startTime);
       obj.end = getTimeHHMMSS(endTime);
-      obj.hours = getHHMMdifference(event.startTimeMillis, event.endTimeMillis);
+      obj.hours = getFloatDiff(event.startTimeMillis, event.endTimeMillis);
       sleep.push(obj);
     }
   });
