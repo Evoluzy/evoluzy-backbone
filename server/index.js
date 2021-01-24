@@ -28,7 +28,7 @@ const USER_CREATED = "User Created";
 const USERT_UPDATED = "User Updated";
 const USER_DELETED = "User Deleted";
 const GOOGLE_API_ERROR = "Server Error when calling google APIs";
-
+const SLEEP_ACTIVITY_TYPE_INDICATOR = 72;
 // routes
 const patientRootPath = "/patient";
 const viewAnalyticsPath = "/viewAnalytics";
@@ -117,7 +117,83 @@ async function formatPatientHealthEvents(rsp) {
   resultObj.isArchived = rsp.isArchived;
   resultObj.patientId = rsp.patientId;
   resultObj.isApproved = rsp.isApproved;
+  // construct the sleep array.
+  let sleepEventsFormated = formatSleepEvents(rsp.healthData.session);
+  resultObj.sleep = sleepEventsFormated;
+  let { heartMinutes, caloriesBurned, step } = formatNonSessionData(
+    rsp.healthData.non_session
+  );
+  resultObj.heartMinutes = heartMinutes;
+  resultObj.caloriesBurned = caloriesBurned;
+  resultObj.step = step;
   return resultObj;
+}
+function formatSleepEvents(session) {
+  //this is a dummy data, for the testing only
+  return [
+    {
+      date: "18/01",
+      hours: 7.5,
+      start: "23:00:00",
+      end: "06:30:00",
+    },
+    {
+      date: "17/01",
+      hours: 9,
+      start: "23:30:00",
+      end: "08:30:00",
+    },
+  ];
+}
+function formatNonSessionData(non_session) {
+  // this is a dummy data (for the sake of testing only)
+  heartMinutes = [
+    {
+      date: "18/01",
+      points: 0,
+    },
+    {
+      date: "17/01",
+      points: 0,
+    },
+  ];
+  caloriesBurned = [
+    {
+      date: "18/01",
+      calories: 26.4,
+    },
+    {
+      date: "17/01",
+      calories: 26,
+    },
+  ];
+  step = {
+    weeklyAverage: [
+      {
+        label: "10/01-16/01",
+        average: "80",
+      },
+      {
+        label: "03/01-09/01",
+        average: "96",
+      },
+    ],
+    daily: [
+      {
+        date: "18/01",
+        count: "123",
+      },
+      {
+        date: "17/01",
+        count: "123",
+      },
+    ],
+  };
+  return {
+    heartMinutes,
+    caloriesBurned,
+    step,
+  };
 }
 
 async function isPatientExist(req) {
