@@ -31,6 +31,7 @@ const GOOGLE_API_ERROR = "Server Error when calling google APIs";
 
 // routes
 const patientRootPath = "/patient";
+const viewAnalyticsPath = "/viewAnalytics";
 
 app.get(patientRootPath, async (req, res) => {
   let rsp = await isPatientExist(req);
@@ -98,11 +99,26 @@ app.delete(patientRootPath, async (req, res) => {
   }
 });
 
-app.get("viewAnalytics/:patientId", (req, res) => {
-  let patientId = req.params.patientId;
-  res.status(200);
+app.get(viewAnalyticsPath, async (req, res) => {
+  let rsp = await isPatientExist(req);
+  if (rsp) {
+    let resultObj = await formatPatientHealthEvents(rsp);
+    return res.status(status.OK).json(resultObj);
+  } else if (rsp == false) {
+    return res.status(status.USER_NOT_FOUND).json({ msg: USER_NOT_FOUND });
+  } else {
+    return res.status(status.SERVER_ERROR).append(GOOGLE_API_ERROR);
+  }
 });
 //helper functions
+async function formatPatientHealthEvents(rsp) {
+  let resultObj = {};
+  resultObj.patientName = rsp.patientName;
+  resultObj.isArchived = rsp.isArchived;
+  resultObj.patientId = rsp.patientId;
+  resultObj.isApproved = rsp.isApproved;
+  return resultObj;
+}
 
 async function isPatientExist(req) {
   let patientId = req.body.patientId;

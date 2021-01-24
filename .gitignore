@@ -2,3 +2,5 @@
 node_modules/
 
 .env
+# dummy-ref is a local file for us to format the user info in the predicted form by the front-end.
+dummy-ref.json
