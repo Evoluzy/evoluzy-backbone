@@ -100,7 +100,6 @@ app.delete(patientRootPath, async (req, res) => {
 
 app.get("viewAnalytics/:patientId", (req, res) => {
   let patientId = req.params.patientId;
-  console.log(patientId);
   res.status(200);
 });
 //helper functions
