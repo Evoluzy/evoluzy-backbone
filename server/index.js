@@ -128,22 +128,51 @@ async function formatPatientHealthEvents(rsp) {
   resultObj.step = step;
   return resultObj;
 }
+
+function getTimeHHMMSS(date) {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let seconds = date.getSeconds();
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+  return hours + ":" + minutes + ":" + seconds;
+}
+function getDayDDMM(date) {
+  let days = date.getDate();
+  let months = date.getMonth() + 1;
+  days = days < 10 ? "0" + days : days;
+  months = months < 10 ? "0" + months : months;
+  return days + "/" + months;
+}
+function getHHMMdifference(start, end) {
+  let duration = end - start;
+  let milliseconds = parseInt((duration % 1000) / 100),
+    seconds = Math.floor((duration / 1000) % 60),
+    minutes = Math.floor((duration / (1000 * 60)) % 60),
+    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+
+  return hours + ":" + minutes;
+}
 function formatSleepEvents(session) {
-  //this is a dummy data, for the testing only
-  return [
-    {
-      date: "18/01",
-      hours: 7.5,
-      start: "23:00:00",
-      end: "06:30:00",
-    },
-    {
-      date: "17/01",
-      hours: 9,
-      start: "23:30:00",
-      end: "08:30:00",
-    },
-  ];
+  let sleep = [];
+  session.forEach((event) => {
+    if (event.activityType === SLEEP_ACTIVITY_TYPE_INDICATOR) {
+      let obj = {};
+      let startTime = new Date(parseInt(event.startTimeMillis));
+      let endTime = new Date(parseInt(event.endTimeMillis));
+      obj.date = getDayDDMM(startTime);
+      obj.start = getTimeHHMMSS(startTime);
+      obj.end = getTimeHHMMSS(endTime);
+      obj.hours = getHHMMdifference(event.startTimeMillis, event.endTimeMillis);
+      sleep.push(obj);
+    }
+  });
+  return sleep;
 }
 function formatNonSessionData(non_session) {
   // this is a dummy data (for the sake of testing only)
