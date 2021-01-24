@@ -22,7 +22,6 @@ const app = express();
 app.use(bodyParser.json());
 firebase.initializeApp(firebaseConfig);
 let db = firebase.firestore();
-const patientCollectionRef = db.collection("evoluzy");
 
 // routes
 const patientRootPath = "/patient";
@@ -41,12 +40,10 @@ app.get(patientRootPath, async (req, res) => {
 });
 
 app.post(patientRootPath, async (req, res) => {
-  // userExist in db ? return status.CONFLICT : create user in db
   let rsp = await isPatientExist(req);
   if (rsp) {
     return res.status(status.CONFLICT).json({});
   } else if (rsp == false) {
-    // create user in db
     let patientId = req.body.patientId;
     let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
     docRef
@@ -69,13 +66,11 @@ app.post(patientRootPath, async (req, res) => {
   }
 });
 
-app.put(patientRootPath, (req, res) => {
-  // userExist in db ? update patient doc  with patientID : create user in db
+app.put(patientRootPath, async (req, res) => {
   let rsp = await isPatientExist(req);
   if (rsp) {
     return res.status(status.OK).json(rsp);
   } else if (rsp == false) {
-    // create user in db
     let patientId = req.body.patientId;
     let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
     docRef
@@ -98,15 +93,19 @@ app.put(patientRootPath, (req, res) => {
   }
 });
 
-app.delete(patientRootPath, (req, res) => {
-  // userExist in db ? delete user : return 200 in both cases
+app.delete(patientRootPath, async (req, res) => {
   let rsp = await isPatientExist(req);
   if (rsp) {
-    // delete user
-    return res.status(status.OK).json(rsp);
-  } else if (rsp == false) {
-    // user already doesn't exist
+    const result = await db
+      .collection(PATIENT_COLLECTION_NAME)
+      .doc(req.body.patientId)
+      .delete();
+    console.log(result);
     return res.status(status.OK).json({});
+  } else if (rsp == false) {
+    return res.status(status.OK).json({});
+  } else {
+    return res.status(status.SERVER_ERROR).json({});
   }
 });
 
