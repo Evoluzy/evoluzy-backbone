@@ -79,6 +79,11 @@ app.delete(patientRootPath, (req, res) => {
   res.send("delete request to the homepage");
 });
 
+app.get("viewAnalytics/:patientId", (req, res) => {
+  let patientId = req.params.patientId;
+  console.log(patientId);
+  res.status(200);
+});
 //helper functions
 
 async function isPatientExist(req) {
