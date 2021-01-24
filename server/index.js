@@ -71,12 +71,43 @@ app.post(patientRootPath, async (req, res) => {
 
 app.put(patientRootPath, (req, res) => {
   // userExist in db ? update patient doc  with patientID : create user in db
-  res.send("put request to the homepage");
+  let rsp = await isPatientExist(req);
+  if (rsp) {
+    return res.status(status.OK).json(rsp);
+  } else if (rsp == false) {
+    // create user in db
+    let patientId = req.body.patientId;
+    let docRef = db.collection(PATIENT_COLLECTION_NAME).doc(patientId);
+    docRef
+      .set({
+        test: "hello-from-put",
+        name: "yesh",
+      })
+      .then(function () {
+        console.log("User successfully created!");
+        return res.status(status.OK).json({});
+      })
+      .catch(function (error) {
+        console.error("Error creating User", error);
+        return res.status(status.SERVER_ERROR).json({});
+      });
+  } else {
+    return res
+      .status(status.SERVER_ERROR)
+      .append("Error in calling google apis");
+  }
 });
 
 app.delete(patientRootPath, (req, res) => {
   // userExist in db ? delete user : return 200 in both cases
-  res.send("delete request to the homepage");
+  let rsp = await isPatientExist(req);
+  if (rsp) {
+    // delete user
+    return res.status(status.OK).json(rsp);
+  } else if (rsp == false) {
+    // user already doesn't exist
+    return res.status(status.OK).json({});
+  }
 });
 
 app.get("viewAnalytics/:patientId", (req, res) => {
