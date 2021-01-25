@@ -234,6 +234,6 @@ async function isPatientExist(req) {
   }
 }
 
-app.listen(port, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log(`app is listening on port: ${port}`);
 });

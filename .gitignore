@@ -6,3 +6,6 @@ node_modules/
 dummy-ref.json
 # raw-ref is a local file for us to view the raw data scheme.
 raw-ref.json
+#local files for testing app-engine
+.gcloudignore
+app.yaml
