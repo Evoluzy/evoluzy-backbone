@@ -36,6 +36,7 @@ const CALORIES_PREFIX = "derived:com.google.calories";
 const HEART_MINUTES_PREFIX = "derived:com.google.heart_minutes";
 // routes
 const patientRootPath = "/patient";
+const deletePatientPath = patientRootPath + "/delete";
 const viewAnalyticsPath = "/viewAnalytics";
 
 app.get("/healthz", async (req, res) => {
@@ -93,7 +94,7 @@ app.put(patientRootPath, async (req, res) => {
   }
 });
 
-app.delete(patientRootPath, async (req, res) => {
+app.post(deletePatientPath, async (req, res) => {
   let rsp = await isPatientExist(req);
   if (rsp) {
     const result = await db
