@@ -29,6 +29,9 @@ const USERT_UPDATED = "User Updated";
 const USER_DELETED = "User Deleted";
 const GOOGLE_API_ERROR = "Server Error when calling google APIs";
 const SLEEP_ACTIVITY_TYPE_INDICATOR = 72;
+const STEPS_COUNT_PREFIX = "derived:com.google.step_count";
+const CALORIES_PREFIX = "derived:com.google.calories";
+const HEART_MINUTES_PREFIX = "derived:com.google.heart_minutes";
 // routes
 const patientRootPath = "/patient";
 const viewAnalyticsPath = "/viewAnalytics";
@@ -167,50 +170,48 @@ function formatSleepEvents(session) {
   });
   return sleep;
 }
+function getDateFromNanoSeconds(nanoSeconds) {
+  let millis = nanoSeconds / 1000000;
+  let d = new Date(millis);
+  return getDayDDMM(d);
+}
 function formatNonSessionData(non_session) {
   // this is a dummy data (for the sake of testing only)
-  heartMinutes = [
-    {
-      date: "18/01",
-      points: 0,
-    },
-    {
-      date: "17/01",
-      points: 0,
-    },
-  ];
-  caloriesBurned = [
-    {
-      date: "18/01",
-      calories: 26.4,
-    },
-    {
-      date: "17/01",
-      calories: 26,
-    },
-  ];
+  heartMinutes = [];
+  caloriesBurned = [];
   step = {
-    weeklyAverage: [
-      {
-        label: "10/01-16/01",
-        average: "80",
-      },
-      {
-        label: "03/01-09/01",
-        average: "96",
-      },
-    ],
-    daily: [
-      {
-        date: "18/01",
-        count: "123",
-      },
-      {
-        date: "17/01",
-        count: "123",
-      },
-    ],
+    daily: [],
   };
+
+  non_session.forEach((day) => {
+    day.dataset.forEach((event) => {
+      if (event.dataSourceId.startsWith(STEPS_COUNT_PREFIX)) {
+        if (event.point.length >= 1) {
+          let obj = {};
+          obj.date = getDateFromNanoSeconds(event.point[0].startTimeNanos);
+          obj.count = event.point[0].value[0].intVal;
+          step.daily.unshift(obj);
+        }
+      } else if (event.dataSourceId.startsWith(CALORIES_PREFIX)) {
+        if (event.point.length >= 1) {
+          let obj = {};
+          obj.date = getDateFromNanoSeconds(event.point[0].startTimeNanos);
+          obj.calories = event.point[0].value[0].fpVal.toFixed(1);
+          caloriesBurned.unshift(obj);
+        }
+      } else if (event.dataSourceId.startsWith(HEART_MINUTES_PREFIX)) {
+        if (event.point.length >= 1) {
+          let obj = {};
+          obj.date = getDateFromNanoSeconds(event.point[0].startTimeNanos);
+          obj.count = event.point[0].value[1].intVal;
+          heartMinutes.unshift(obj);
+        }
+      } else {
+        // ignore
+      }
+    });
+  });
+
   return {
     heartMinutes,
     caloriesBurned,
