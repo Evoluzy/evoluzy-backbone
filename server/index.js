@@ -44,6 +44,9 @@ app.get("/healthz", async (req, res) => {
 });
 
 app.get(patientRootPath, async (req, res) => {
+  if (!req.body.patientId && req.query.patientId) {
+    req.body.patientId = req.query.patientId;
+  }
   let rsp = await isPatientExist(req);
   if (rsp) {
     return res.status(status.OK).json(rsp);
@@ -110,6 +113,9 @@ app.post(deletePatientPath, async (req, res) => {
 });
 
 app.get(viewAnalyticsPath, async (req, res) => {
+  if (!req.body.patientId && req.query.patientId) {
+    req.body.patientId = req.query.patientId;
+  }
   let rsp = await isPatientExist(req);
   if (rsp) {
     let resultObj = await formatPatientHealthEvents(rsp);
