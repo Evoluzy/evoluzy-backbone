@@ -3,6 +3,7 @@ const firebase = require("firebase");
 const status = require("http-status");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
+const cors = require("cors");
 dotenv.config();
 
 // system wide configs
@@ -20,6 +21,7 @@ const app = express();
 
 // system inits and hooks
 app.use(bodyParser.json());
+app.use(cors());
 firebase.initializeApp(firebaseConfig);
 let db = firebase.firestore();
 
@@ -35,6 +37,10 @@ const HEART_MINUTES_PREFIX = "derived:com.google.heart_minutes";
 // routes
 const patientRootPath = "/patient";
 const viewAnalyticsPath = "/viewAnalytics";
+
+app.get("/healthz", async (req, res) => {
+  res.send("UP");
+});
 
 app.get(patientRootPath, async (req, res) => {
   let rsp = await isPatientExist(req);
